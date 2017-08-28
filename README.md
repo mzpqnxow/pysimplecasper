@@ -12,12 +12,12 @@ You will need a username/password to use the Casper API. These should be set in 
 I recommend using something like this
 
 ```
-(venv) a@debian:~/pysimplecasper.git$ cat ~/.casper_creds 
+(venv) user@host:~/pysimplecasper.git$ cat ~/.casper_creds 
 export CASPER_USER=someuser
 export CASPER_PASS=somepassword
 export CASPER_HOST=casper.yourdomain.com
 (venv) user@host:~/pysimplecasper.git$ source ~/.casper_creds 
-(venv) a@host:~/pysimplecasper.git$ ./driver.py
+(venv) user@host:~/pysimplecasper.git$ ./driver.py
 ```
 
 ## Stability, maturity
