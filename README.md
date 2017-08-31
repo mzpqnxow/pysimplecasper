@@ -42,7 +42,7 @@ The following files are output by ```driver.py```, which uses the ```CasperAPI``
 
 * ```user_chrome_extensions.json``` - A list of Chrome Extensions per-user, this can be used to ensure there are not any questionable or otherwise disallowed Chrome Extensions on each of your user's machines
 * ```user_patches.json``` - A list of patches that each user has applied to their respective machines, useful for identifying machines that are out of compliance. It is not necessary to understand what each patch is, instead you can just compare each patch list with a known good patch list, taken from a computer that has been manually patched up to the latest
-* ```user_applications.json``` - A list of all applications installed on each of your user's machines. Useful in the same way as the Chrome Extension list is useful- identify non-compliant packages, forbidden by written policy but not controlled by hard technical policy
+* ```user_applications.json``` - A list of all applications installed on each of your user's machines. Useful in the same way as the Chrome Extension list is useful- identify non-compliant packages, forbidden by written policy but not controlled by hard technical controls
 * ```user_plugins.json``` - Same as Chrome Extensions but for plug-ins
 * ```user_available_software_updates.json``` - The inverse of user_patches.json, this shows patches that are *not* applied but probably should be, per-user machine
 * ```ip_to_user_object.json``` - Given an IP address, return the ```computer``` object. You can then process the ```computer``` object to pull out any data you may need
