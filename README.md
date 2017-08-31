@@ -48,7 +48,7 @@ The following files are output by ```driver.py```, which uses the ```CasperAPI``
 * ```ip_to_user_object.json``` - Given an IP address, return the ```computer``` object. You can then process the ```computer``` object to pull out any data you may need
 * ```ip_to_username.json``` - Given an IP address, return the ```username``` for that computer
 * ```user_services.json``` - Return a list of all services active on each user's computer
-* ```services_counter.json``` - Return a Counter() object of services found across the entire fleet. For example, you may want to investigate services that are only found on a single system as it can be considered anomalous. You can also determine the popularity of certain services to gauge exposure to a vulnerability in that service
+* ```services_counter.json``` - Return a ```Counter``` object of services along with instance count found across the entire fleet. For example, you may want to investigate services that are only found on a single system as it can be considered anomalous. You can also determine the popularity of certain services to gauge exposure to a vulnerability in that service
 * ```chrome_extensions_counter.json``` - Same as ```services_counter.json``` but for Chrome Extensions
 * ```user_assets.json``` - Return a summary of "asset" information per-user computer, such as make, model, etc.
 * ```user_virtual_machines.json``` - Return a list of installed virtual machines on each user's computer
