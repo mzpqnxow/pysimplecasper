@@ -34,7 +34,7 @@ The way the Casper API works is pretty straightforward. Generally you make one r
 
 ## Extending
 
-If you want to extend this, you can find out about each of the (many) Casper API endpoints by visiting http://casper.endpoint.fqdn/api. Note that by default API requests will return XML. If you prefer JSON (who doesn't?) than you will need to include an ```Accept: application/json``` header as is done in ```simplecasper/api.py``` in the CasperAPI class. While there are many API endpoints, many of them are really just for querying specific subsets of the ```computers``` endpoint. It may be easier to just process the computers result to strip out the data you want as opposed to adding an interface for each API endpoint. YMMV.
+If you want to extend this, you can find out about each of the (many) Casper API endpoints by visiting http://casper.endpoint.fqdn/api. Note that by default API requests will return XML. If you prefer JSON (who doesn't?) than you will need to include an ```Accept: application/json``` header as is done in ```simplecasper/api.py``` in the ```CasperAPI``` class. While there are many API endpoints, many of them are really just for querying specific subsets of the ```computers``` endpoint. It may be easier to just process the computers result to strip out the data you want as opposed to adding an interface for each API endpoint. YMMV.
 
 ## Summary of driver.py output and how the data might be used
 
