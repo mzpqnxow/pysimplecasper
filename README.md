@@ -23,7 +23,7 @@ export CASPER_HOST=casper.yourdomain.com
 
 ## Stability, maturity
 
-This code is not production quality. It is really just a glorified snippet/example. The only Casper API endpoints it current uses:
+This code is not production quality. It is really just a glorified snippet/example. The driver does not take arguments and has a hardcoded relative path for output, which is ```output/```. The only Casper API endpoints it currently uses are the following:
 
   * ```/JSSResource/computers```
   * ```/JSSResource/computers/id/<id>```
@@ -34,7 +34,7 @@ The way the Casper API works is pretty straightforward. Generally you make one r
 
 ## Extending
 
-If you want to extend this, you can find out about each of the (many) Casper API endpoints by visiting http://casper.endpoint.fqdn/api. Note that by default API requests will return XML. If you prefer JSON (who doesn't?) than you will need to include an ```Accept: application/json``` header as is done in ```simplecasper/api.py``` in the ```CasperAPI``` class. While there are many API endpoints, many of them are really just for querying specific subsets of the ```computers``` endpoint. It may be easier to just process the computers result to strip out the data you want as opposed to adding an interface for each API endpoint. YMMV.
+If you want to extend this, you can find out about each of the (many) Casper API endpoints by visiting ```http://casper.endpoint.fqdn/```api. Note that by default all Casper API requests will return XML. If you prefer JSON (who doesn't?) than you will need to include an ```Accept: application/json``` header as is done in ```simplecasper/api.py``` in the ```CasperAPI``` class. While there are many API endpoints, many of them are really just for querying specific subsets of the ```computers``` endpoint. It may be easier to just process the computers result to strip out the data you want as opposed to adding an interface for each API endpoint. This is what is done here, for the most part.
 
 ## Summary of driver.py output and how the data might be used
 
@@ -54,3 +54,23 @@ The following files are output by ```driver.py```, which uses the ```CasperAPI``
 * ```user_virtual_machines.json``` - Return a list of installed virtual machines on each user's computer
 * ```virtual_machines_counter.json``` - The summarized fleet-wide view of virtual machines with an instance count next to each virtual machine name, using ```Counter```
 * ```user_missing_patches``` - Similar to ```user_available_software_updates.json```, includes a small subset of user information along with a list of missing patches for a computer
+
+## End notes
+
+Use this to dump results to tables in a database or to JSON files, then perform some batch processing on them to prepare a report. Or user for ad-hoc queries when you need to determine something about your fleet
+
+## Copyright
+
+```
+Copyright 2017, <copyright@mzpqnxow.com>
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+```

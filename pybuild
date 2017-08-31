@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""Build a Python virtual environment without requiring local copies of dependencies
+
+Copyright 2017, <copyright@mzpqnxow.com>
+See COPYRIGHT for details
+"""
 from contextlib import contextmanager
 from errno import ENOENT, ENOTEMPTY
 import os

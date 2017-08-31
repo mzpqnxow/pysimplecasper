@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 """
 CasperAPI class - call the Casper API and parse the data it returns, creating various
 objects that are useful for reporting. Some reports supported:
@@ -18,6 +17,9 @@ objects that are useful for reporting. Some reports supported:
 - ...
 
 See driver.py in the root of the repository for examples
+
+Copyright 2017, <copyright@mzpqnxow.com>
+See COPYRIGHT for details
 """
 from __future__ import unicode_literals, print_function
 

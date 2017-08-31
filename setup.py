@@ -3,6 +3,9 @@
 """
 pysimplecasper - A simple library for basic usage of Casper API that also does some
                  processing of the data and produces some common 'reports'
+
+Copyright 2017, <copyright@mzpqnxow.com>
+See COPYRIGHT for details
 """
 
 from setuptools import setup
@@ -35,10 +38,10 @@ setup(
     # Author details
     author='Adam Greene',
     # Choose your license
-    license='GPLv2',
+    license='3-clause BSD License',
     classifiers=[
         'Development Status :: 3 - Alpha',
-        'License :: OSI Approved :: GPLv2 License',
+        'License :: OSI Approved :: 3-clause BSD License',
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7'
     ],

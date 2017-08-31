@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""
-    This is a sample program that utilizes the CasperAPI class
+"""This is a sample program that utilizes the CasperAPI class
 
-    It will produce a small set of files in CSV and JSON formats
+It will produce a small set of files in CSV and JSON formats
+See the README.md for a summary of the content of these files
+
+Copyright 2017, <copyright@mzpqnxow.com>
+See COPYRIGHT for details
 """
 from __future__ import unicode_literals
 from os import getenv

@@ -10,6 +10,9 @@
 
     functions:
         to_file
+
+Copyright 2017, <copyright@mzpqnxow.com>
+See COPYRIGHT for details
 """
 from __future__ import unicode_literals, print_function
 
