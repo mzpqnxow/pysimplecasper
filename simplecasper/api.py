@@ -47,17 +47,16 @@ UPDATE_CACHE = False
 
 
 class CasperAPI(SimpleHTTPJSON):
-    """
-        CasperAPI: a class for pulling data out of the Casper HTTP JSON API
+    """CasperAPI: a class for pulling data out of the Casper HTTP JSON API
 
-        This class retrieves raw data and also performs a good deal of processing
-        to produce useful reports. To accomplish this, it creates a large set of
-        data structures based on the raw data
+    This class retrieves raw data and also performs a good deal of processing
+    to produce useful reports. To accomplish this, it creates a large set of
+    data structures based on the raw data
 
-        The majority of the work takes place in get_computer_data()
+    The majority of the work takes place in get_computer_data()
 
-        All non-public methods are named with a leading `_` and should not be
-        used directly
+    All non-public methods are named with a leading `_` and should not be
+    used directly
     """
     HEADERS = {'Accept': 'application/json, text/javascript, */*; q=0.01'}
     COMPUTERS_ENDPOINT = '/computers'
@@ -67,13 +66,13 @@ class CasperAPI(SimpleHTTPJSON):
     CASPER_DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
 
     def __init__(self, user, password, fqdn, https=True):
-        """
-            Generate reports based on data pulled from the Casper API
-            Requires a username, password and fqdn of a Casper server
-            Used https by default
+        """Generate reports based on data pulled from the Casper API
 
-            JSON is used via the `Accept` header. This avoids having to
-            deal with XML
+        Requires a username, password and fqdn of a Casper server
+        Used https by default
+
+        JSON is used via the `Accept` header. This avoids having to
+        deal with XML
         """
         super(CasperAPI, self).__init__()
         self._user = user
@@ -116,11 +115,10 @@ class CasperAPI(SimpleHTTPJSON):
         self._virtual_machines = None
 
     def get_applications(self, per_user=True):
-        """
-            Return the applications report
+        """Return the applications report
 
-            If per_user is True, return a version containing user context in
-            each entry
+        If per_user is True, return a version containing user context in
+        each entry
         """
         self._run_if_none(self._applications)
         if per_user is True:
@@ -128,11 +126,10 @@ class CasperAPI(SimpleHTTPJSON):
         return [dict(t) for t in set([tuple(d.items()) for d in self._applications])]
 
     def get_plugins(self, per_user=True):
-        """
-            Get the plugins report
+        """Get the plugins report
 
-            If per_user is True, return a version containing user context in
-            each entry
+        If per_user is True, return a version containing user context in
+        each entry
         """
         self._run_if_none(self._plugins)
         if per_user is True:
@@ -140,18 +137,16 @@ class CasperAPI(SimpleHTTPJSON):
         return [dict(t) for t in set([tuple(d.items()) for d in self._plugins])]
 
     def get_all_computer_data(self):
-        """
-            Return all data from the /computers endpoint
-        """
+        """Return all data from the /computers endpoint"""
         self._run_if_none(self._computer_data_list)
         return self._computer_data_list
 
     def get_missing_patches(self, csv=True):
         """
-            Return the missing patches report
+        Return the missing patches report
 
-            If csv is True, return a list version of the report so that
-            it can be easily represented as a CSV
+        If csv is True, return a list version of the report so that
+        it can be easily represented as a CSV
         """
         if csv is True:
             return self._user_tagged_patch_list
@@ -159,10 +154,10 @@ class CasperAPI(SimpleHTTPJSON):
 
     def get_ip_user_map(self, simple=True):
         """
-            Return a dictionary with IP address as the key and user info as value
+        Return a dictionary with IP address as the key and user info as value
 
-            If simple is True, the value is only the full name of the user
-            If simple is False, the value contains username, full name, and time info
+        If simple is True, the value is only the full name of the user
+        If simple is False, the value contains username, full name, and time info
         """
         self._run_if_none(self._ip_simple_name_map)
         if simple is True:
@@ -171,11 +166,11 @@ class CasperAPI(SimpleHTTPJSON):
 
     def get_chrome_extensions(self, counter=False, per_user=True):
         """
-            Return the chrome extension report
+        Return the chrome extension report
 
-            If per_user is True, return the "per user" version
-            If counter is True, return a dict of service: unique_count
-            key value pairs
+        If per_user is True, return the "per user" version
+        If counter is True, return a dict of service: unique_count
+        key value pairs
         """
         self._run_if_none(self._user_tagged_chrome_extensions)
         if per_user is not True:
@@ -193,12 +188,12 @@ class CasperAPI(SimpleHTTPJSON):
 
     def get_available_updates(self, counter=False, per_user=True):
         """
-            Return the available updates report
-            If per_user is True, return the "per user" version
-            If counter is True, return a dict of service: unique_count
-            key value pairs
+        Return the available updates report
+        If per_user is True, return the "per user" version
+        If counter is True, return a dict of service: unique_count
+        key value pairs
 
-            counter and per_user are mutually exclusive
+        counter and per_user are mutually exclusive
         """
         self._run_if_none(self._available_updates)
         if per_user is True:
@@ -207,8 +202,8 @@ class CasperAPI(SimpleHTTPJSON):
 
     def get_available_software_updates(self, per_user=True):
         """
-            Return the available software updates report
-            If per_user is True, return the "per user" version
+        Return the available software updates report
+        If per_user is True, return the "per user" version
         """
         self._run_if_none(self._available_software_updates)
         if per_user is True:
@@ -217,12 +212,12 @@ class CasperAPI(SimpleHTTPJSON):
 
     def get_virtual_machines(self, counter=False, per_user=True):
         """
-            Return the virtual machines report
-            If per_user is True, return the "per user" version
-            If counter is True, return a dict of service: unique_count
-            key value pairs
+        Return the virtual machines report
+        If per_user is True, return the "per user" version
+        If counter is True, return a dict of service: unique_count
+        key value pairs
 
-            counter and per_user are mutually exclusive
+        counter and per_user are mutually exclusive
         """
         self._run_if_none(self._virtual_machines)
         if per_user is True:
@@ -233,8 +228,8 @@ class CasperAPI(SimpleHTTPJSON):
 
     def get_assets(self, per_user=True):
         """
-            Return the assets report
-            If per_user is True, return the "per user" version
+        Return the assets report
+        If per_user is True, return the "per user" version
         """
         self._run_if_none(self._assets)
         if per_user is True:
@@ -243,12 +238,12 @@ class CasperAPI(SimpleHTTPJSON):
 
     def get_services(self, counter=False, per_user=True):
         """
-            Return the services report
-            If per_user is True, return the "per user" version
-            If counter is True, return a dict of service: unique_count
-            key value pairs
+        Return the services report
+        If per_user is True, return the "per user" version
+        If counter is True, return a dict of service: unique_count
+        key value pairs
 
-            counter and per_user are mutually exclusive
+        counter and per_user are mutually exclusive
         """
         self._run_if_none(self._available_updates)
         if per_user is True:
@@ -257,11 +252,11 @@ class CasperAPI(SimpleHTTPJSON):
 
     def http_get_computers(self):
         """
-            Fetch a list of computer identifiers from the Casper API
-            using the /computers endpoint. Returns a list of integers
+        Fetch a list of computer identifiers from the Casper API
+        using the /computers endpoint. Returns a list of integers
 
-            Also, populate self._computer_id_list so that other class
-            methods can use the list
+        Also, populate self._computer_id_list so that other class
+        methods can use the list
         """
         obj = self.http_get_json(
             '%s%s' % (self._url, self.COMPUTERS_ENDPOINT),
@@ -277,8 +272,8 @@ class CasperAPI(SimpleHTTPJSON):
 
     def http_get_patch_id_list(self):
         """
-            Fetch a list of patch identifiers from the Casper API using
-            the /patches endpoint. Returns a list of integers
+        Fetch a list of patch identifiers from the Casper API using
+        the /patches endpoint. Returns a list of integers
         """
         obj = self.http_get_json(
             '%s%s' % (self._url, self.PATCHES_ENDPOINT),
@@ -290,9 +285,9 @@ class CasperAPI(SimpleHTTPJSON):
 
     def http_get_patches(self):
         """
-            Fetch data from the HTTP /patches endpoint and prepare various
-            data structures to make the data easier to understand and work
-            with
+        Fetch data from the HTTP /patches endpoint and prepare various
+        data structures to make the data easier to understand and work
+        with
         """
         self._patches = []
         for patch_id in self.http_get_patch_id_list():
@@ -373,19 +368,23 @@ class CasperAPI(SimpleHTTPJSON):
     # ---- End user interface ----
 
     def _run_if_none(self, obj):
+        """For convenience"""
         if obj is None:
             self._get_computer_data()
 
     def _counter_if(self, obj, counter):
+        """Convenience function"""
         if counter is True:
             return Counter(obj)
         return obj
 
     def _cache_load(self, cache_file):
+        """Cleaner looking caching"""
         with open(join(self._cache_path, cache_file), 'rb') as stream:
             return json_load(stream)
 
     def _cache_dump(self, obj, cache_file):
+        """Cleaner looking caching"""
         try:
             mkdir(self._cache_path)
         except OSError as err:
@@ -457,16 +456,17 @@ class CasperAPI(SimpleHTTPJSON):
         return
 
     def _get_computer_data(self, computer_id_list=None, silent=True):
-        """
-            This is the main function that parses the computer record that
-            is returned by Casper. It is a very large piece of data to describe
-            a computer- it includes information about the user, the software, the
-            physical hardware, patches, and tons of other junk
+        """Iterative over all computer identifiers and pull the computer object
 
-            This function creates a few "report" style data structures, such as lists
-            of plug-ins, plug-ins per-user, count of plug-in instances, and so on
+        This is the main function that parses the computer record that
+        is returned by Casper. It is a very large piece of data to describe
+        a computer- it includes information about the user, the software, the
+        physical hardware, patches, and tons of other junk
 
-            An IP address -> user mapping is also created
+        This function creates a few "report" style data structures, such as lists
+        of plug-ins, plug-ins per-user, count of plug-in instances, and so on
+
+        An IP address -> user mapping is also created
         """
         def _is_stale(last_contact_time):
             try:
