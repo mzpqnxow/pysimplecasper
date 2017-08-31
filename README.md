@@ -52,5 +52,5 @@ The following files are output by ```driver.py```, which uses the ```CasperAPI``
 * ```chrome_extensions_counter.json``` - Same as ```services_counter.json``` but for Chrome Extensions
 * ```user_assets.json``` - Return a summary of "asset" information per-user computer, such as make, model, etc.
 * ```user_virtual_machines.json``` - Return a list of installed virtual machines on each user's computer
-* ```virtual_machines_counter.json``` - The summarized fleet-wide view of virtual machines with a counter next to each virtual machine name
+* ```virtual_machines_counter.json``` - The summarized fleet-wide view of virtual machines with an instance count next to each virtual machine name, using ```Counter```
 * ```user_missing_patches``` - Similar to ```user_available_software_updates.json```, includes a small subset of user information along with a list of missing patches for a computer
