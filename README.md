@@ -23,18 +23,20 @@ export CASPER_HOST=casper.yourdomain.com
 
 ## Stability, maturity
 
-This code is not production quality. It is really just a glorified snippet/example. The driver does not take arguments and has a hardcoded relative path for output, which is ```output/```. The only Casper API endpoints it currently uses are the following:
+This code is not production quality and is lacking in completeness. It was written to fulfill a specific set of needs. The code is PEP8 compliant and has been linted relatively well, though. The driver is lacking support for arguments and as such has a hardcoded relative path for output, which is ```output/```. The only Casper API endpoints it currently uses are the following:
 
   * ```/JSSResource/computers```
   * ```/JSSResource/computers/id/<id>```
   * ```/JSSResource/patches```
   * ```/JSSResource/patches/id/<id>```
 
+## Casper API notes
+
 The way the Casper API works is pretty straightforward. Generally you make one request to get a list of identifiers, which are integers. You then make a series of requests, one per identifier, to get data for a specific resource, like a `computer` or a `patch`. While the returned data for each patch record is relatively small and simple, computer records are somewhat significant in size and somewhat complex in structure, so they must be massaged a little to make all of the data useful. The code in simplecasper builds a bunch of lookup tables and lists that are easy to dump to CSV or JSON files. Optionally they can do things like report ```Counter``` style dictionaries (for example, list all applications on known by Casper and list the count of instances in a dict)
 
 ## Extending
 
-If you want to extend this, you can find out about each of the (many) Casper API endpoints by visiting ```http://casper.endpoint.fqdn/```api. Note that by default all Casper API requests will return XML. If you prefer JSON (who doesn't?) than you will need to include an ```Accept: application/json``` header as is done in ```simplecasper/api.py``` in the ```CasperAPI``` class. While there are many API endpoints, many of them are really just for querying specific subsets of the ```computers``` endpoint. It may be easier to just process the computers result to strip out the data you want as opposed to adding an interface for each API endpoint. This is what is done here, for the most part.
+If you want to extend this to query more endpoints or just to output more objects from the existing CasperAPI class, you can find out about each of the (many) Casper API endpoints by visiting ```http://casper.endpoint.fqdn/```api. Note that by default all Casper API requests will return XML. If you prefer JSON (who doesn't?) than you will need to include an ```Accept: application/json``` header as is done in ```simplecasper/api.py``` in the ```CasperAPI``` class. While there are many API endpoints, many of them are really just for querying specific subsets of the ```computers``` endpoint. It may be easier to just process the computers result to strip out the data you want as opposed to adding an interface for each API endpoint. This is what is done here, for the most part. All pull requests are welcome.
 
 ## Summary of driver.py output and how the data might be used
 
