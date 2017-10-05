@@ -44,6 +44,7 @@ def main():
         getenv('CASPER_USER'),
         getenv('CASPER_PASS'),
         getenv('CASPER_HOST'))
+    # capi.enable_debug()
     capi.http_get_computers()
     to_file(_outpath('user_chrome_extensions.json'), capi.get_chrome_extensions())
     to_file(_outpath('user_patches.json'), capi.http_get_patches())
