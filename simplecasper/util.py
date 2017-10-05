@@ -177,7 +177,9 @@ def to_file(dest, obj, csv_fields=None, uniq=True, filter_blanks=True, silent=Fa
         if isinstance(obj, (set, tuple, list)) is False:
             raise RuntimeError(
                 'ERROR: csv files must be generated from a list/tuple/set')
-        if isinstance(obj[0], dict):
+        from json import dumps
+        print(dumps(obj, indent=2))
+        if len(obj) and isinstance(obj[0], dict):
             csv_fields = obj[0].keys()
         if csv_fields is not None:
             writer = CSVDictWriter(write_stream, fieldnames=csv_fields)

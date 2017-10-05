@@ -42,8 +42,8 @@ from simplecasper.util import SimpleHTTPJSON
 
 # Use if doing development, to speed things up by foregoing
 # HTTP requests
-READ_CACHE = True
-UPDATE_CACHE = False
+READ_CACHE = False
+UPDATE_CACHE = True
 
 
 class CasperAPI(SimpleHTTPJSON):
@@ -60,9 +60,9 @@ class CasperAPI(SimpleHTTPJSON):
     """
     HEADERS = {'Accept': 'application/json, text/javascript, */*; q=0.01'}
     COMPUTERS_ENDPOINT = '/computers'
-    COMPUTERS_ID_ENDPOINT = '/computers/id/'
+    COMPUTERS_ID_ENDPOINT = '/computers/id'
     PATCHES_ENDPOINT = '/patches'
-    PATCHES_ID_ENDPOINT = '/patches/id/'
+    PATCHES_ID_ENDPOINT = '/patches/id'
     CASPER_DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
 
     def __init__(self, user, password, fqdn, https=True):
@@ -80,7 +80,7 @@ class CasperAPI(SimpleHTTPJSON):
         self._url = 'http'
         if https is True:
             self._url += 's'
-        self._url += '://%s/JSSResource/' % (fqdn)
+        self._url += '://%s/JSSResource' % (fqdn)
         self._cache_path = join(dirname(realpath(__file__)), '..', 'cache')
         # Begin data filled in by get_computer_data()
         self._applications = None
@@ -424,36 +424,40 @@ class CasperAPI(SimpleHTTPJSON):
                 attr_value)
         del computer['extension_attributes']
 
-        vm_settings = [attr for attr in attributes['Virtual Machines']['value'].split(
-            '\n') if attr != '']
-        vm_count = len(vm_settings)
-        if vm_count > 0:
-            vm_app = vm_settings[0]
-            virtual_machines = vm_settings[1:]
-            general['virtual_machines'] = virtual_machines
-            self._virtual_machines.extend(virtual_machines)
-            self._user_virtual_machines = virtual_machines
-            general['vm_app'] = vm_app
-        chr_ext = attributes['Chrome Extensions']['value']
+        if 'Virtual Machines' in attributes:
+            vm_settings = [attr for attr in attributes['Virtual Machines']['value'].split(
+                '\n') if attr != '']
+            vm_count = len(vm_settings)
+            if vm_count > 0:
+                vm_app = vm_settings[0]
+                virtual_machines = vm_settings[1:]
+                general['virtual_machines'] = virtual_machines
+                self._virtual_machines.extend(virtual_machines)
+                self._user_virtual_machines = virtual_machines
+                general['vm_app'] = vm_app
+        if 'Chrome Extensions' in attributes:
+            chr_ext = attributes['Chrome Extensions']['value']
         # user_chrome_extensions = [u'{0}'.format(
         #    ext.strip()) for ext in chr_ext.split(',')]
         # general['simplecasper_chrome_extensions'] = chrome_extensions
-        self._user_chrome_extensions = [u'{0}'.format(
-            ext.strip()) for ext in chr_ext.split(',')]
+            self._user_chrome_extensions = [u'{0}'.format(
+                ext.strip()) for ext in chr_ext.split(',')]
+        else:
+            self._user_chrome_extensions = []
 
-        self._chrome_extensions.extend(self._user_chrome_extensions)
-
-        crashers = attributes['crashers']['value']
-        if crashers not in ('No recent heavy crashers', ''):
-            # coreaudiod_2016-11-16-123214_Persons-Name.crash
-            # Remove the directory path from the front
-            crashers = basename(crashers)
-            # Strip out everything except the application name
-            crashers = substitute(r'(^.*)_\d{4}-\d{2}-\d{2}-\d{6}_.*$', r'\1',
-                                  crashers)
-            general['simplecasper_crash_data'] = {'user': realname,
-                                                  'app': crashers}
-        return
+        # self._chrome_extensions.extend(self._user_chrome_extensions)
+        if 'crashers' in attributes:
+            crashers = attributes['crashers']['value']
+            if crashers not in ('No recent heavy crashers', ''):
+                # coreaudiod_2016-11-16-123214_Persons-Name.crash
+                # Remove the directory path from the front
+                crashers = basename(crashers)
+                # Strip out everything except the application name
+                crashers = substitute(r'(^.*)_\d{4}-\d{2}-\d{2}-\d{6}_.*$', r'\1',
+                                      crashers)
+                general['simplecasper_crash_data'] = {'user': realname,
+                                                      'app': crashers}
+            return
 
     def _get_computer_data(self, computer_id_list=None, silent=True):
         """Iterative over all computer identifiers and pull the computer object
