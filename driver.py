@@ -64,6 +64,7 @@ def main():
     to_file(_outpath(
         'virtual_machines_counter.json'), capi.get_virtual_machines(counter=True, per_user=False))
     to_file(_outpath('user_missing_patches.csv'), capi.get_missing_patches(csv=True))
+    to_file(_outpath('all_computers_ip_map.json'), capi.get_all_computer_data(ip_key=True))
 
 
 if __name__ == '__main__':

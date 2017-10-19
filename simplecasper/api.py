@@ -41,7 +41,8 @@ from sys import stdout
 from simplecasper.util import SimpleHTTPJSON
 
 # Use if doing development, to speed things up by foregoing
-# HTTP requests
+# HTTP requests. Flip from False, True to True, False after
+# running once to populate the cache
 READ_CACHE = False
 UPDATE_CACHE = True
 
@@ -136,10 +137,14 @@ class CasperAPI(SimpleHTTPJSON):
             return self._user_tagged_plugins
         return [dict(t) for t in set([tuple(d.items()) for d in self._plugins])]
 
-    def get_all_computer_data(self):
+    def get_all_computer_data(self, ip_key=False):
         """Return all data from the /computers endpoint"""
-        self._run_if_none(self._computer_data_list)
-        return self._computer_data_list
+        if not ip_key:
+            self._run_if_none(self._computer_data_list)
+            return self._computer_data_list
+        else:
+            self._run_if_none(self._computer_data)
+            return self._computer_data
 
     def get_missing_patches(self, csv=True):
         """
