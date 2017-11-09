@@ -49,6 +49,7 @@ def main():
     to_file(_outpath('user_chrome_extensions.json'), capi.get_chrome_extensions())
     to_file(_outpath('user_patches.json'), capi.http_get_patches())
     to_file(_outpath('user_applications.json'), capi.get_applications())
+    to_file(_outpath('all_applications.json'), capi.get_applications(per_user=False))
     to_file(_outpath('user_plugins.json'), capi.get_plugins())
     to_file(_outpath(
         'user_available_software_updates.json'), capi.get_available_software_updates())
