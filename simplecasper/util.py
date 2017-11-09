@@ -22,6 +22,8 @@ from csv import (
     writer as CSVWriter)
 from json import dump as json_dump, load as json_load
 from os.path import join, dirname, realpath
+import warnings
+
 
 import requests
 
@@ -53,11 +55,13 @@ class SimpleHTTPJSON(object):
             headers = {}
         headers.update(self.HTTP_HEADER_ACCEPT_JSON)
         client = requests.session()
+        warnings.filterwarnings("ignore")
         response = client.get(
             url,
             verify=verify,
             auth=auth,
             headers=headers)
+        warnings.filterwarnings("always")
         if response.status_code not in accepted_codes:
             if fatal_exception is True:
                 print('FATAL: code == %d' % (response.status_code))
@@ -170,7 +174,7 @@ def to_file(dest, obj, csv_fields=None, uniq=True, filter_blanks=True, silent=Fa
 
     if dest.endswith('.json'):
         # Basic JSON dump
-        json_dump(obj, write_stream)
+        json_dump(obj, write_stream, sort_keys=False)
     elif dest.endswith('.csv'):
         # Write out a plain CSV file, or one with a header if csv_fields is
         # specified

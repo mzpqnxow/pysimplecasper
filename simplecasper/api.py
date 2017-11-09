@@ -25,7 +25,8 @@ from __future__ import unicode_literals, print_function
 
 from collections import (
     defaultdict,
-    Counter)
+    Counter,
+    OrderedDict)
 from copy import copy
 import datetime
 from errno import EEXIST
@@ -33,18 +34,51 @@ import httplib
 from json import (
     dump as json_dump,
     load as json_load)
-from os import mkdir
+from logging import (
+    basicConfig as configure_log_basic,
+    getLogger as get_logger,
+    DEBUG as LOGLEVEL_DEBUG,
+    WARN as LOGLEVEL_WARN,
+    INFO as LOGLEVEL_INFO,
+    ERROR as LOGLEVEL_ERROR)
+from os import mkdir, getenv
 from os.path import join, realpath, dirname, basename
 from re import sub as substitute
 from sys import stdout
 
 from simplecasper.util import SimpleHTTPJSON
 
+configure_log_basic()
+LOG = get_logger(__name__)
+LOG.setLevel(LOGLEVEL_WARN)
+INFO = LOG.info
+CRIT = LOG.critical
+WARN = LOG.warn
+DEBUG = LOG.debug
+ERROR = LOG.error
+FATAL = LOG.fatal
+
 # Use if doing development, to speed things up by foregoing
 # HTTP requests. Flip from False, True to True, False after
 # running once to populate the cache
-READ_CACHE = False
-UPDATE_CACHE = True
+DEFAULT_READ_CACHE = True
+DEFAULT_UPDATE_CACHE = False
+
+# Default 30 days means stale, skip computer
+# Can be adjusted with CasperAPI::skip_stale()
+STALE_DAYS = 30
+
+def get_casper_credentials():
+    # authenticate to Casper API
+    # use export CASPER_USER=yourname, etc..
+    # put in a ~/.caspercredsrc and source it in your shellrc
+    for var in ('CASPER_USER', 'CASPER_PASS', 'CASPER_HOST'):
+        if not getenv(var):
+            print("FATAL: %s is missing from user environment" % (
+                var))
+            raise RuntimeError(
+                'Missing Casper API information, set CASPER_USER, CASPER_PASS, CASPER_HOST')
+    return getenv('CASPER_USER'), getenv('CASPER_PASS'), getenv('CASPER_HOST')
 
 
 class CasperAPI(SimpleHTTPJSON):
@@ -100,7 +134,9 @@ class CasperAPI(SimpleHTTPJSON):
         self._ip_user_map = None
         self._patches = None
         self._plugins = None
+        self._read_cache = DEFAULT_READ_CACHE
         self._services = None
+        self._update_cache = DEFAULT_UPDATE_CACHE
         self._user_chrome_extensions = None
         self._user_to_machine = None
         self._user_tagged_applications = None
@@ -145,6 +181,23 @@ class CasperAPI(SimpleHTTPJSON):
         else:
             self._run_if_none(self._computer_data)
             return self._computer_data
+
+    def get_extension_attributes(self, count=False):
+        self._run_if_none(self._computer_data_list)
+        if not count:
+            return [computer['computer']['general'][
+                'simplecasper_parsed_attributes'] for computer in self._computer_data_list]
+        temp = self._computer_data_list[0]['computer']['general'][
+            'simplecasper_parsed_attributes']
+        results = {}
+        xattr_all = defaultdict(list)
+        for key in temp.keys():
+            for computer in self._computer_data_list:
+                xattrs = computer['computer']['general']['simplecasper_parsed_attributes']
+                xattr_all[key].append(xattrs[key])
+        for key, value in xattr_all.iteritems():
+            results[key] = Counter(value)
+        return results
 
     def get_missing_patches(self, csv=True):
         """
@@ -269,11 +322,36 @@ class CasperAPI(SimpleHTTPJSON):
             auth=(self._user, self._password),
             headers=self.HTTP_HEADER_ACCEPT_JSON)
         self._computer_id_list = [record['id'] for record in obj['computers']]
-        if READ_CACHE is True:
+        if self.read_cache(None) is True:
             return self._cache_load('computers.json')
-        elif UPDATE_CACHE is True:
+        elif self.update_cache(None) is True:
             self._cache_dump(self._computer_id_list, 'computers.json')
         return self._computer_id_list
+
+    def read_cache(self, on):
+        """Retrieve or set read cache setting"""
+        if on is None:
+            return self._read_cache
+        self._read_cache = on
+        if self._read_cache:
+            self._update_cache = False
+
+    def update_cache(self, on):
+        """Retrieve or set update cache setting"""
+        if on is None:
+            return self._update_cache
+        self._update_cache = on
+        if self._update_cache:
+            self._read_cache = False
+
+    def skip_stale(self, on, days=STALE_DAYS):
+        """
+        If on is True, skip computers that are 'stale' based on
+        their last check-in. Specify days to set the parameters
+        for the definition of 'stale'
+        """
+        self._skip_stale = on
+        self._stale_days = days
 
     def http_get_patch_id_list(self):
         """
@@ -421,13 +499,13 @@ class CasperAPI(SimpleHTTPJSON):
                     attr_value = int(attr_value)
                 except ValueError as err:
                     if silent is False:
-                        print('WARN: %s' % (err))
+                        WARN(err)
             attributes[attr_name]['value'] = u'{0}'.format(attr_value)
             attributes[attr_name]['type'] = attr_type
             attributes[attr_name]['id'] = attr_id
             general['simplecasper_parsed_attributes'][attr_name] = u'{0}'.format(
                 attr_value)
-        del computer['extension_attributes']
+        # del computer['extension_attributes']
 
         if 'Virtual Machines' in attributes:
             vm_settings = [attr for attr in attributes['Virtual Machines']['value'].split(
@@ -481,14 +559,14 @@ class CasperAPI(SimpleHTTPJSON):
             try:
                 date = datetime.datetime.strptime(
                     last_contact_time, self.CASPER_DATE_FORMAT)
-                days30 = datetime.timedelta(days=30)
+                days = datetime.timedelta(days=STALE_DAYS)
                 now = datetime.datetime.now()
-                month_ago = now - days30
+                month_ago = now - days
                 if date < month_ago:
                     return True
             except ValueError:
                 if silent is False:
-                    print('WARN: invalid date "%s"' % (last_contact_time))
+                    INFO('invalid date {0}'.format(last_contact_time))
                 return False
             return False
 
@@ -511,6 +589,8 @@ class CasperAPI(SimpleHTTPJSON):
             self._ip_simple_name_map = {}
             self._plugins = []
             self._services = []
+            self._skip_stale = True
+            self._stale_days = STALE_DAYS
             self._user_chrome_extensions = []
             self._user_tagged_applications = []
             self._user_tagged_assets = []
@@ -562,18 +642,24 @@ class CasperAPI(SimpleHTTPJSON):
             user_services = []
 
             # For development use
-            if READ_CACHE is True:
+            if self.read_cache(None) is True:
                 obj = self._cache_load('%s.json' % (cid))
             else:
                 obj = self.http_get_json('%s%s' % (
                     self._url, '%s/%s' % (self.COMPUTERS_ID_ENDPOINT, cid)),
                     auth=(self._user, self._password))
-                if UPDATE_CACHE is True:
+                if self.update_cache(None) is True:
                     self._cache_dump(obj, '%s.json' % cid)
 
             self._computer_data[comp_id] = obj
             computer = obj['computer']
             general = computer['general']
+
+            last_contact_time = general['last_contact_time']
+            if self._skip_stale and _is_stale(last_contact_time):
+                INFO('skipping stale computer ...')
+                continue
+
             remote_mgmt = general['remote_management']
             # Zero out the sensitive hash info
             remote_mgmt['management_password_sha256'] = '*'
@@ -603,8 +689,6 @@ class CasperAPI(SimpleHTTPJSON):
             name = u'{0}'.format(name)
             ip_address = u'{0}'.format(general['last_reported_ip'])
             self._user_to_machine[username].append((ip_address, serial_number))
-            last_contact_time = general['last_contact_time']
-            _is_stale(last_contact_time)
             self._ip_user_map[ip_address]['realname'] = name
             self._ip_user_map[ip_address]['username'] = username
             self._ip_user_map[ip_address]['last checkin'] = str(last_contact_time)
