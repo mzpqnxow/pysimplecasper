@@ -19,5 +19,6 @@ var/
 .installed.cfg
 *.egg
 env/
-venv/,!venv/requirements.txt
+venv/
+!venv/requirements.txt
 *.json
