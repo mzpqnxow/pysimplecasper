@@ -9,6 +9,7 @@ Copyright 2017, <copyright@mzpqnxow.com>
 See COPYRIGHT for details
 """
 from __future__ import unicode_literals
+import json
 from os import getenv
 from os.path import join
 
@@ -16,7 +17,7 @@ from simplecasper import CasperAPI
 from simplecasper import SWVersions, to_file
 
 OUTPATH = 'output'
-
+TESTING = False
 
 def main():
     """Exercise the simplecasper API"""
@@ -66,7 +67,21 @@ def main():
         'virtual_machines_counter.json'), capi.get_virtual_machines(counter=True, per_user=False))
     to_file(_outpath('user_missing_patches.csv'), capi.get_missing_patches(csv=True))
     to_file(_outpath('all_computers_ip_map.json'), capi.get_all_computer_data(ip_key=True))
+    to_file(_outpath('all_computers_ip_map_not_stale.json'), capi.get_all_computer_data(ip_key=True, exclude_stale=True))
+    to_file(_outpath('hardware.json'), capi.get_hardware())
 
+    if TESTING:
+        encryption_records = []
+        for asset in capi.get_hardware():
+            asset_record = {}
+            encryption = asset['disk_encryption_configuration']
+            hostname = asset['hostname']
+            person = asset['person']
+            asset_record['encryption_enabled'] = True if encryption else False
+            asset_record['owner_name'] = person
+            asset_record['hostname'] = hostname
+            encryption_records.append(asset_record)
+        to_file(_outpath('encryption.json'), encryption_records)
 
 if __name__ == '__main__':
     main()

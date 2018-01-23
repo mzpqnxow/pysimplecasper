@@ -68,6 +68,7 @@ DEFAULT_UPDATE_CACHE = False
 # Can be adjusted with CasperAPI::skip_stale()
 STALE_DAYS = 30
 
+
 def get_casper_credentials():
     # authenticate to Casper API
     # use export CASPER_USER=yourname, etc..
@@ -126,7 +127,10 @@ class CasperAPI(SimpleHTTPJSON):
         self._chrome_extensions = None
         self._computer_data = None
         self._computer_data_list = None
+        self._computer_data_not_stale = None
+        self._computer_data_list_not_stale = None
         self._computer_id_list = None
+        self._hardware_list = None
         self._id_to_user_map = None
         self._id_to_patch_report = None
         self._installer_swu_software = None
@@ -173,14 +177,21 @@ class CasperAPI(SimpleHTTPJSON):
             return self._user_tagged_plugins
         return [dict(t) for t in set([tuple(d.items()) for d in self._plugins])]
 
-    def get_all_computer_data(self, ip_key=False):
+    def get_all_computer_data(self, ip_key=False, exclude_stale=False):
         """Return all data from the /computers endpoint"""
-        if not ip_key:
-            self._run_if_none(self._computer_data_list)
-            return self._computer_data_list
+        if exclude_stale is True:
+            computer_data_list = self._computer_data_list_not_stale
+            computer_data = self._computer_data_not_stale
         else:
-            self._run_if_none(self._computer_data)
-            return self._computer_data
+            computer_data_list = self._computer_data_list
+            computer_data = self._computer_data
+
+        if not ip_key:
+            self._run_if_none(computer_data_list)
+            return computer_data_list
+        else:
+            self._run_if_none(computer_data)
+            return computer_data_list
 
     def get_extension_attributes(self, count=False):
         self._run_if_none(self._computer_data_list)
@@ -267,6 +278,12 @@ class CasperAPI(SimpleHTTPJSON):
         if per_user is True:
             return self._user_tagged_available_software_updates
         return self._available_software_updates
+
+    def get_hardware(self):
+        """
+        Return the hardware sections from the list of computers
+        """
+        return self._hardware_list
 
     def get_virtual_machines(self, counter=False, per_user=True):
         """
@@ -583,6 +600,9 @@ class CasperAPI(SimpleHTTPJSON):
             self._chrome_extensions = []
             self._computer_data_list = []
             self._computer_data = {}
+            self._computer_data_not_stale = {}
+            self._computer_data_list_not_stale = []
+            self._hardware_list = []
             self._installer_swu_software = []
             self._id_to_patch_report = defaultdict()
             self._ip_user_map = defaultdict(dict)
@@ -652,13 +672,21 @@ class CasperAPI(SimpleHTTPJSON):
                     self._cache_dump(obj, '%s.json' % cid)
 
             self._computer_data[comp_id] = obj
+            self._computer_data_list.append(copy(obj))
+
             computer = obj['computer']
             general = computer['general']
 
             last_contact_time = general['last_contact_time']
             if self._skip_stale and _is_stale(last_contact_time):
+                obj['stale'] = True
+                computer['stale'] = True
+                general['stale'] = True
                 INFO('skipping stale computer ...')
                 continue
+
+            self._computer_data_not_stale[comp_id] = obj
+            self._computer_data_list_not_stale.append(copy(obj))
 
             remote_mgmt = general['remote_management']
             # Zero out the sensitive hash info
@@ -696,6 +724,11 @@ class CasperAPI(SimpleHTTPJSON):
             remote_mgmt['management_password_sha256'] = ''
             # mgmt_user = remote_mgmt['management_username']
             hardware = computer['hardware']
+            if hardware['disk_encryption_configuration'] == '':
+                hardware['disk_encryption_configuration'] = None
+            hardware['hostname'] = general['name']
+            hardware['username'] = username
+            self._hardware_list.append(hardware)
             user_asset['make'] = hardware['make']
             user_asset['model'] = hardware['model']
             user_asset['model_id'] = hardware['model_identifier']
@@ -776,6 +809,7 @@ class CasperAPI(SimpleHTTPJSON):
             self._process_extension_attributes(computer)
 
             self._ip_simple_name_map[u'{0}'.format(ip_address)] = u'{0}'.format(name)
+            hardware['person'] = u'{0}'.format(name)
             self._available_software_updates.extend(user_available_software_updates)
             self._casper_software.extend(casper_software)
             self._assets.append(user_asset)
