@@ -61,7 +61,7 @@ FATAL = LOG.fatal
 # Use if doing development, to speed things up by foregoing
 # HTTP requests. Flip from False, True to True, False after
 # running once to populate the cache
-DEFAULT_READ_CACHE = True
+DEFAULT_READ_CACHE = False
 DEFAULT_UPDATE_CACHE = False
 
 # Default 30 days means stale, skip computer
