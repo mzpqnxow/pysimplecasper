@@ -184,7 +184,7 @@ class CasperAPI(SimpleHTTPJSON):
 
     def get_all_computer_data(self, ip_key=False, exclude_stale=False):
         """Return all data from the /computers endpoint"""
-        self._run_if_none(computer_data)
+        self._run_if_none(self._computer_data)
         if exclude_stale is True:
             computer_data_list = self._computer_data_list_not_stale
             computer_data = self._computer_data_not_stale
