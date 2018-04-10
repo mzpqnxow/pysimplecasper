@@ -47,5 +47,5 @@ setup(
     ],
     keywords='casper',
     packages=['simplecasper'],
-    install_requires=['requests']
+    install_requires=['requests', 'urllib3']
 )
