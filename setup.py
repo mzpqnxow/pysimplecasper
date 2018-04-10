@@ -31,7 +31,7 @@ FULL_NAME = '.'.join(NAMESPACE)
 
 setup(
     name=FULL_NAME,
-    version='0.1',
+    version='0.2',
     description='Simple wrapper for Casper API that generates reports',
     long_description=long_description,
     url='https://github.com/mzpqnxow/pysimplecasper.git',
@@ -47,5 +47,5 @@ setup(
     ],
     keywords='casper',
     packages=['simplecasper'],
-    install_requires=['requests', 'urllib3']
+    install_requires=['requests']
 )
