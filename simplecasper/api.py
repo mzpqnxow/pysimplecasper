@@ -754,8 +754,8 @@ class CasperAPI(SimpleHTTPJSON):
 
             try:
                 stdout.write('\r' + ' ' * 80)
-                stdout.write(u'\r{0}/{1} computers processed ({2}) ...'.format(
-                    progress, total_records, name))
+                stdout.write(u'\r{}/{} computers processed ...'.format(
+                    progress, total_records))
                 stdout.flush()
             except UnicodeDecodeError as err:
                 err = err
