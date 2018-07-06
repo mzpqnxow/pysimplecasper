@@ -31,11 +31,12 @@ FULL_NAME = '.'.join(NAMESPACE)
 
 setup(
     name=FULL_NAME,
-    version='0.2',
+    version='0.3',
     description='Simple wrapper for Casper API that generates reports',
     long_description=long_description,
     url='https://github.com/mzpqnxow/pysimplecasper.git',
     # Author details
+    zip_safe=True,
     author='Adam Greene',
     # Choose your license
     license='3-clause BSD License',
