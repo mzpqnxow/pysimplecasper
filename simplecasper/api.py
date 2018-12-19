@@ -748,15 +748,15 @@ class CasperAPI(SimpleHTTPJSON):
             installer_swu_software = [pkg for pkg in software['installed_by_installer_swu']]
             user_available_software_updates = [upd for upd in software['available_software_updates']]
 
-            print('%d' % progress)
             try:
-                stdout.write('\r' + ' ' * 80)
-                stdout.write('\r{}/{} computers processed ...'.format(progress, total_records))
-                stdout.flush()
+                # stdout.write('\r' + ' ' * 80)
+                # stdout.write('{}/{} computers processed ...'.format(progress, total_records))
+                # stdout.flush()
+                print('{}/{} computers processed ...'.format(progress, total_records))
             except UnicodeDecodeError as err:
                 print(err)
-                print('{}/{}'.format(progress, total_records))
-                err = err
+                raise
+
             for dmg_name in casper_software:
                 self._casper_software.append(dmg_name)
 
