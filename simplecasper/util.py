@@ -34,6 +34,7 @@ HTTP_RETRY_COUNT = 10
 HTTP_RETRY_DELAY = 1
 HTTP_TIMEOUT = 60
 
+
 class SimpleHTTPJSON(object):
     """
         Convenience base class for shortening HTTP pulls of JSON date
@@ -68,6 +69,7 @@ class SimpleHTTPJSON(object):
         client.encoding = encoding
         warnings.filterwarnings("ignore")
         live_retries = retries + 1
+        success = False
         while live_retries != 0:
             try:
                 response = client.get(
@@ -76,6 +78,7 @@ class SimpleHTTPJSON(object):
                     auth=auth,
                     headers=headers,
                     timeout=timeout)
+                success = True
                 break
             except RequestException as err:
                 print('HTTP request error')
@@ -83,7 +86,8 @@ class SimpleHTTPJSON(object):
                 print('Retrying ({}/{})'.format(retries - live_retries - 1, retries))
                 live_retries -= 1
                 sleep(retry_delay)
-            else:
+
+            if success is False:
                 raise RuntimeError('unable to make HTTP request after {} retries'.format(retries))
 
         warnings.filterwarnings("always")

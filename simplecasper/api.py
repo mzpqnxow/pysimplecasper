@@ -675,8 +675,6 @@ class CasperAPI(SimpleHTTPJSON):
                     verify=False)
                 if self.update_cache(None) is True:
                     self._cache_dump(obj, '%s.json' % cid)
-                else:
-                    raise RuntimeError('unable to get HTTP request with retries !!')
             self._computer_data[comp_id] = obj
             self._computer_data_list.append(copy(obj))
 
