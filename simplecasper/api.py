@@ -50,7 +50,7 @@ from simplecasper.util import SimpleHTTPJSON
 
 configure_log_basic()
 LOG = get_logger(__name__)
-LOG.setLevel(LOGLEVEL_WARN)
+LOG.setLevel(LOGLEVEL_INFO)
 INFO = LOG.info
 CRIT = LOG.critical
 WARN = LOG.warn
