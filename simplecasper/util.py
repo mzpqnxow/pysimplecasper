@@ -46,7 +46,8 @@ class SimpleHTTPJSON(object):
                       accepted_codes=[200],
                       verify=True,
                       auth=None,
-                      headers=None):
+                      headers=None,
+                      timeout=60):
         """Simple get_http_json function for doing GET of a JSON file"""
 
         if auth is None:

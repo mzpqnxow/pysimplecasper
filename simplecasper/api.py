@@ -67,6 +67,8 @@ DEFAULT_UPDATE_CACHE = False
 # Default 30 days means stale, skip computer
 # Can be adjusted with CasperAPI::skip_stale()
 STALE_DAYS = 30
+RETRY_COUNT = 10
+TIMEOUT = 60
 
 
 def get_casper_credentials():
@@ -671,13 +673,21 @@ class CasperAPI(SimpleHTTPJSON):
             if self.read_cache(None) is True:
                 obj = self._cache_load('%s.json' % (cid))
             else:
-                obj = self.http_get_json('%s%s' % (
-                    self._url, '%s/%s' % (self.COMPUTERS_ID_ENDPOINT, cid)),
-                    auth=(self._user, self._password),
-                    verify=False)
-                if self.update_cache(None) is True:
-                    self._cache_dump(obj, '%s.json' % cid)
-
+                retries = RETRY_COUNT
+                while retries:
+                    if retries != RETRY_COUNT:
+                        print('Retrying ...')
+                    try:
+                        obj = self.http_get_json('%s%s' % (
+                            self._url, '%s/%s' % (self.COMPUTERS_ID_ENDPOINT, cid)),
+                            auth=(self._user, self._password),
+                            verify=False,
+                            timeout=TIMEOUT)
+                        if self.update_cache(None) is True:
+                            self._cache_dump(obj, '%s.json' % cid)
+                    except Exception as err:  # XXX should be requests.exceptions.XXX
+                        retries -= 1
+                        print(err)
             self._computer_data[comp_id] = obj
             self._computer_data_list.append(copy(obj))
 
@@ -772,9 +782,9 @@ class CasperAPI(SimpleHTTPJSON):
                 update_name = upd['name']
                 package_name = upd['package_name']
                 version = upd['version']
-                update['name'] = '{0}'.format(str(update_name))
-                update['package_name'] = '{0}'.format(str(package_name))
-                update['version'] = '{0}'.format(str(version))
+                update['name'] = u'{0}'.format(str(update_name))
+                update['package_name'] = u'{0}'.format(str(package_name))
+                update['version'] = u'{0}'.format(str(version))
                 self._available_updates.append(update)
                 user_available_updates.append(update)
 
