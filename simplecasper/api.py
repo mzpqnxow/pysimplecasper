@@ -748,6 +748,7 @@ class CasperAPI(SimpleHTTPJSON):
             installer_swu_software = [pkg for pkg in software['installed_by_installer_swu']]
             user_available_software_updates = [upd for upd in software['available_software_updates']]
 
+            print('%d' % progress)
             try:
                 stdout.write('\r' + ' ' * 80)
                 stdout.write('\r{}/{} computers processed ...'.format(progress, total_records))
