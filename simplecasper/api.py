@@ -674,22 +674,13 @@ class CasperAPI(SimpleHTTPJSON):
             if self.read_cache(None) is True:
                 obj = self._cache_load('%s.json' % (cid))
             else:
-                retries = RETRY_COUNT
-                while retries:
-                    if retries != RETRY_COUNT:
-                        print('Retrying ...')
-                    try:
-                        obj = self.http_get_json('%s%s' % (
-                            self._url, '%s/%s' % (self.COMPUTERS_ID_ENDPOINT, cid)),
-                            auth=(self._user, self._password),
-                            verify=False,
-                            timeout=TIMEOUT)
-                        if self.update_cache(None) is True:
-                            self._cache_dump(obj, '%s.json' % cid)
-                        break
-                    except RequestException as err:  # XXX should be requests.exceptions.XXX
-                        retries -= 1
-                        print(err)
+                obj = self.http_get_json('%s%s' % (
+                    self._url, '%s/%s' % (self.COMPUTERS_ID_ENDPOINT, cid)),
+                    auth=(self._user, self._password),
+                    verify=False,
+                    timeout=TIMEOUT)
+                if self.update_cache(None) is True:
+                    self._cache_dump(obj, '%s.json' % cid)
                 else:
                     raise RuntimeError('unable to get HTTP request with retries !!')
             self._computer_data[comp_id] = obj

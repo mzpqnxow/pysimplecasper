@@ -25,8 +25,11 @@ from json import dump as json_dump, load as json_load
 from os.path import join, dirname, realpath
 import warnings
 
-
+from requests.exceptions import RequestException
 import requests
+
+
+RETRY_COUNT = 10
 
 
 class SimpleHTTPJSON(object):
@@ -49,9 +52,10 @@ class SimpleHTTPJSON(object):
                       auth=None,
                       headers=None,
                       timeout=60,
-                      encoding='utf-8'):
+                      encoding='utf-8',
+                      retries=RETRY_COUNT):
         """Simple get_http_json function for doing GET of a JSON file"""
-
+        retries += 1
         if auth is None:
             auth = []
         if headers is None:
@@ -60,11 +64,40 @@ class SimpleHTTPJSON(object):
         client = requests.session()
         client.encoding = encoding
         warnings.filterwarnings("ignore")
-        response = client.get(
-            url,
-            verify=verify,
-            auth=auth,
-            headers=headers)
+        live_retries = retries += 1
+
+                # while retries:
+                #     if retries != RETRY_COUNT:
+                #         print('Retrying ...')
+                #     try:
+                #         obj = self.http_get_json('%s%s' % (
+                #             self._url, '%s/%s' % (self.COMPUTERS_ID_ENDPOINT, cid)),
+                #             auth=(self._user, self._password),
+                #             verify=False,
+                #             timeout=TIMEOUT)
+
+                #         break
+                #     except RequestException as err:  # XXX should be requests.exceptions.XXX
+                #         retries -= 1
+                #         print(err)
+                # else:
+                #     raise RuntimeError('unable to get HTTP request with retries !!')
+        while live_retries:
+            try:
+                response = client.get(
+                    url,
+                    verify=verify,
+                    auth=auth,
+                    headers=headers)
+                break
+            except RequestException as err:
+                print('HTTP request error')
+                print(err)
+                print('Retrying ({}/{})'.format(retries - live_retries - 1, retries))
+                live_retries -= 1
+            else:
+                raise RuntimeError('unable to make HTTP request after {} retries'.format(retries))
+
         warnings.filterwarnings("always")
         if response.status_code not in accepted_codes:
             if fatal_exception is True:
