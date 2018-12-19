@@ -514,7 +514,7 @@ class CasperAPI(SimpleHTTPJSON):
             attr_name = attr['name']
             attr_type = attr['type']
             attr_value = attr['value']
-            if attr_type not in ('String', 'Number'):
+            if attr_type not in ('String', 'Number', 'Date'):
                 raise RuntimeError('unknown attribute type %s' % (
                     attr_type))
             if attr_type == 'Number':
