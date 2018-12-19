@@ -66,7 +66,7 @@ DEFAULT_UPDATE_CACHE = False
 
 # Default 30 days means stale, skip computer
 # Can be adjusted with CasperAPI::skip_stale()
-STALE_DAYS = 30
+STALE_DAYS = 90
 
 
 def get_casper_credentials():
