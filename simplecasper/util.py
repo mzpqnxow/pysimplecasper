@@ -14,7 +14,8 @@
 Copyright 2017, <copyright@mzpqnxow.com>
 See COPYRIGHT for details
 """
-from __future__ import unicode_literals, print_function
+from __future__ import unicode_literals
+from __future__ import print_function
 
 from collections import defaultdict
 from csv import (
@@ -56,6 +57,7 @@ class SimpleHTTPJSON(object):
             headers = {}
         headers.update(self.HTTP_HEADER_ACCEPT_JSON)
         client = requests.session()
+        client.encoding = 'utf-8'
         warnings.filterwarnings("ignore")
         response = client.get(
             url,

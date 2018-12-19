@@ -21,7 +21,8 @@ See driver.py in the root of the repository for examples
 Copyright 2017, <copyright@mzpqnxow.com>
 See COPYRIGHT for details
 """
-from __future__ import unicode_literals, print_function
+from __future__ import unicode_literals
+from __future__ import print_function
 
 from collections import (
     defaultdict,
@@ -513,9 +514,9 @@ class CasperAPI(SimpleHTTPJSON):
 
         for attr in ext_attr:
             attr_id = int(attr['id'])
-            attr_name = u'{0}'.format(attr['name'])
-            attr_type = u'{0}'.format(attr['type'])
-            attr_value = u'{0}'.format(attr['value'])
+            attr_name = attr['name']
+            attr_type = attr['type']
+            attr_value = attr['value']
             if attr_type not in ('String', 'Number'):
                 raise RuntimeError('unknown attribute type %s' % (
                     attr_type))
@@ -525,11 +526,10 @@ class CasperAPI(SimpleHTTPJSON):
                 except ValueError as err:
                     if silent is False:
                         WARN(err)
-            attributes[attr_name]['value'] = u'{0}'.format(attr_value)
+            attributes[attr_name]['value'] = attr_value
             attributes[attr_name]['type'] = attr_type
             attributes[attr_name]['id'] = attr_id
-            general['simplecasper_parsed_attributes'][attr_name] = u'{0}'.format(
-                attr_value)
+            general['simplecasper_parsed_attributes'][attr_name] = attr_value
         # del computer['extension_attributes']
 
         if 'Virtual Machines' in attributes:
@@ -548,8 +548,7 @@ class CasperAPI(SimpleHTTPJSON):
         # user_chrome_extensions = [u'{0}'.format(
         #    ext.strip()) for ext in chr_ext.split(',')]
         # general['simplecasper_chrome_extensions'] = chrome_extensions
-            self._user_chrome_extensions = [u'{0}'.format(
-                ext.strip()) for ext in chr_ext.split(',')]
+            self._user_chrome_extensions = [ext.strip() for ext in chr_ext.split(',')]
         else:
             self._user_chrome_extensions = []
 
@@ -731,8 +730,8 @@ class CasperAPI(SimpleHTTPJSON):
                             if name == '':
                                 name = 'N/A'
             location['canonical_name'] = name
-            name = u'{0}'.format(name)
-            ip_address = u'{0}'.format(general['last_reported_ip'])
+            # name = name.encode('utf-8')
+            ip_address = general['last_reported_ip']
             self._user_to_machine[username].append((ip_address, serial_number))
             self._ip_user_map[ip_address]['realname'] = name
             self._ip_user_map[ip_address]['username'] = username
@@ -759,8 +758,7 @@ class CasperAPI(SimpleHTTPJSON):
             software = computer['software']
             casper_software = [pkg for pkg in software['installed_by_casper']]
             installer_swu_software = [pkg for pkg in software['installed_by_installer_swu']]
-            user_available_software_updates = ['{0}'.format(
-                upd) for upd in software['available_software_updates']]
+            user_available_software_updates = [upd for upd in software['available_software_updates']]
 
             try:
                 stdout.write('\r' + ' ' * 80)
@@ -782,9 +780,9 @@ class CasperAPI(SimpleHTTPJSON):
                 update_name = upd['name']
                 package_name = upd['package_name']
                 version = upd['version']
-                update['name'] = u'{0}'.format(str(update_name))
-                update['package_name'] = u'{0}'.format(str(package_name))
-                update['version'] = u'{0}'.format(str(version))
+                update['name'] = update_name.encode('utf-8')
+                update['package_name'] = package_name.encode('utf-8')
+                update['version'] = version.encode('utf-8')
                 self._available_updates.append(update)
                 user_available_updates.append(update)
 
@@ -806,9 +804,9 @@ class CasperAPI(SimpleHTTPJSON):
                 application = {}
                 for i in app:
                     if i is not None:
-                        application['name'] = u'{0}'.format(app['name'])
-                        application['path'] = u'{0}'.format(app['path'])
-                        application['version'] = u'{0}'.format(app['version'])
+                        application['name'] = app['name']
+                        application['path'] = app['path']
+                        application['version'] = app['version']
                         self._applications.append(application)
                         user_applications.append(application)
                         if application['name'] == 'Google Chrome.app':
@@ -817,16 +815,16 @@ class CasperAPI(SimpleHTTPJSON):
             for plug in plugs:
                 plugin = {}
                 if plug is not None:
-                    plugin['name'] = u'{0}'.format(plug['name'])
-                    plugin['path'] = u'{0}'.format(plug['path'])
-                    plugin['version'] = u'{0}'.format(plug['version'])
+                    plugin['name'] = plug['name']
+                    plugin['path'] = plug['path']
+                    plugin['version'] = plug['version']
                     self._plugins.append(plugin)
                     user_plugins.append(plugin)
 
             self._process_extension_attributes(computer)
 
-            self._ip_simple_name_map[u'{0}'.format(ip_address)] = u'{0}'.format(name)
-            hardware['person'] = u'{0}'.format(name)
+            self._ip_simple_name_map[ip_address] = name
+            hardware['person'] = name
             self._available_software_updates.extend(user_available_software_updates)
             self._casper_software.extend(casper_software)
             self._assets.append(user_asset)
