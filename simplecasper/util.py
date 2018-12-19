@@ -30,9 +30,9 @@ from requests.exceptions import RequestException
 import requests
 
 
-RETRY_COUNT = 10
-RETRY_DELAY = 1
-
+HTTP_RETRY_COUNT = 10
+HTTP_RETRY_DELAY = 1
+HTTP_TIMEOUT = 60
 
 class SimpleHTTPJSON(object):
     """
@@ -53,10 +53,10 @@ class SimpleHTTPJSON(object):
                       verify=True,
                       auth=None,
                       headers=None,
-                      timeout=60,
+                      timeout=HTTP_TIMEOUT,
                       encoding='utf-8',
-                      retry_delay=RETRY_DELAY,
-                      retries=RETRY_COUNT):
+                      retry_delay=HTTP_RETRY_DELAY,
+                      retries=HTTP_RETRY_COUNT):
         """Simple get_http_json function for doing GET of a JSON file"""
         retries += 1
         if auth is None:

@@ -672,8 +672,7 @@ class CasperAPI(SimpleHTTPJSON):
                 obj = self.http_get_json('%s%s' % (
                     self._url, '%s/%s' % (self.COMPUTERS_ID_ENDPOINT, cid)),
                     auth=(self._user, self._password),
-                    verify=False,
-                    timeout=TIMEOUT)
+                    verify=False)
                 if self.update_cache(None) is True:
                     self._cache_dump(obj, '%s.json' % cid)
                 else:
