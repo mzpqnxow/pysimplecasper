@@ -24,12 +24,14 @@ from csv import (
 from json import dump as json_dump, load as json_load
 from os.path import join, dirname, realpath
 import warnings
+from time import sleep
 
 from requests.exceptions import RequestException
 import requests
 
 
 RETRY_COUNT = 10
+RETRY_DELAY = 1
 
 
 class SimpleHTTPJSON(object):
@@ -53,6 +55,7 @@ class SimpleHTTPJSON(object):
                       headers=None,
                       timeout=60,
                       encoding='utf-8',
+                      retry_delay=RETRY_DELAY,
                       retries=RETRY_COUNT):
         """Simple get_http_json function for doing GET of a JSON file"""
         retries += 1
@@ -79,6 +82,7 @@ class SimpleHTTPJSON(object):
                 print(err)
                 print('Retrying ({}/{})'.format(retries - live_retries - 1, retries))
                 live_retries -= 1
+                sleep(retry_delay)
             else:
                 raise RuntimeError('unable to make HTTP request after {} retries'.format(retries))
 
