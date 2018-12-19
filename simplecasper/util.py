@@ -30,7 +30,7 @@ from requests.exceptions import RequestException
 import requests
 
 
-HTTP_RETRY_COUNT = 10
+HTTP_RETRY_COUNT = 50
 HTTP_RETRY_DELAY = 1
 HTTP_TIMEOUT = 60
 
