@@ -62,7 +62,7 @@ FATAL = LOG.fatal
 # HTTP requests. Flip from False, True to True, False after
 # running once to populate the cache
 DEFAULT_READ_CACHE = False
-DEFAULT_UPDATE_CACHE = False
+DEFAULT_UPDATE_CACHE = True
 
 # Default 30 days means stale, skip computer
 # Can be adjusted with CasperAPI::skip_stale()
@@ -706,11 +706,11 @@ class CasperAPI(SimpleHTTPJSON):
             # building = location['building']
             # position = location['position']
             # Pick a non-empty name
-            name = location['real_name']
-            if name == '':
-                name = general['name']
+            name = location.get('real_name', '')
+            if not name:
+                name = general.get('name', '')
                 if name == '':
-                    name = general['realname']
+                    name = general.get('realname', '')
                     if name == '':
                         name = username
                         if name == '':
