@@ -26,8 +26,7 @@ from __future__ import print_function
 
 from collections import (
     defaultdict,
-    Counter,
-    OrderedDict)
+    Counter)
 from copy import copy
 import datetime
 from errno import EEXIST
@@ -46,8 +45,6 @@ from os import mkdir, getenv
 from os.path import join, realpath, dirname, basename
 from re import sub as substitute
 from sys import stdout
-
-from requests.exceptions import RequestException
 
 from simplecasper.util import SimpleHTTPJSON
 
@@ -70,8 +67,6 @@ DEFAULT_UPDATE_CACHE = False
 # Default 30 days means stale, skip computer
 # Can be adjusted with CasperAPI::skip_stale()
 STALE_DAYS = 30
-RETRY_COUNT = 10
-TIMEOUT = 60
 
 
 def get_casper_credentials():

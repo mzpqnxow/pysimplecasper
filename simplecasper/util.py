@@ -64,31 +64,15 @@ class SimpleHTTPJSON(object):
         client = requests.session()
         client.encoding = encoding
         warnings.filterwarnings("ignore")
-        live_retries = retries += 1
-
-                # while retries:
-                #     if retries != RETRY_COUNT:
-                #         print('Retrying ...')
-                #     try:
-                #         obj = self.http_get_json('%s%s' % (
-                #             self._url, '%s/%s' % (self.COMPUTERS_ID_ENDPOINT, cid)),
-                #             auth=(self._user, self._password),
-                #             verify=False,
-                #             timeout=TIMEOUT)
-
-                #         break
-                #     except RequestException as err:  # XXX should be requests.exceptions.XXX
-                #         retries -= 1
-                #         print(err)
-                # else:
-                #     raise RuntimeError('unable to get HTTP request with retries !!')
-        while live_retries:
+        live_retries = retries + 1
+        while live_retries != 0:
             try:
                 response = client.get(
                     url,
                     verify=verify,
                     auth=auth,
-                    headers=headers)
+                    headers=headers,
+                    timeout=timeout)
                 break
             except RequestException as err:
                 print('HTTP request error')
