@@ -48,7 +48,8 @@ class SimpleHTTPJSON(object):
                       verify=True,
                       auth=None,
                       headers=None,
-                      timeout=60):
+                      timeout=60,
+                      encoding='utf-8'):
         """Simple get_http_json function for doing GET of a JSON file"""
 
         if auth is None:
@@ -57,7 +58,7 @@ class SimpleHTTPJSON(object):
             headers = {}
         headers.update(self.HTTP_HEADER_ACCEPT_JSON)
         client = requests.session()
-        client.encoding = 'utf-8'
+        client.encoding = encoding
         warnings.filterwarnings("ignore")
         response = client.get(
             url,

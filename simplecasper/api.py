@@ -47,6 +47,8 @@ from os.path import join, realpath, dirname, basename
 from re import sub as substitute
 from sys import stdout
 
+from requests.exceptions import RequestException
+
 from simplecasper.util import SimpleHTTPJSON
 
 configure_log_basic()
@@ -684,9 +686,12 @@ class CasperAPI(SimpleHTTPJSON):
                             timeout=TIMEOUT)
                         if self.update_cache(None) is True:
                             self._cache_dump(obj, '%s.json' % cid)
-                    except Exception as err:  # XXX should be requests.exceptions.XXX
+                        break
+                    except RequestException as err:  # XXX should be requests.exceptions.XXX
                         retries -= 1
                         print(err)
+                else:
+                    raise RuntimeError('unable to get HTTP request with retries !!')
             self._computer_data[comp_id] = obj
             self._computer_data_list.append(copy(obj))
 
@@ -762,10 +767,11 @@ class CasperAPI(SimpleHTTPJSON):
 
             try:
                 stdout.write('\r' + ' ' * 80)
-                stdout.write(u'\r{}/{} computers processed ...'.format(
-                    progress, total_records))
+                stdout.write('\r{}/{} computers processed ...'.format(progress, total_records))
                 stdout.flush()
             except UnicodeDecodeError as err:
+                print(err)
+                print('{}/{}'.format(progress, total_records))
                 err = err
             for dmg_name in casper_software:
                 self._casper_software.append(dmg_name)
