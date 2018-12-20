@@ -21,30 +21,39 @@ See driver.py in the root of the repository for examples
 Copyright 2017, <copyright@mzpqnxow.com>
 See COPYRIGHT for details
 """
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import (
+    print_function,
+    unicode_literals
+)
 
-from collections import (
-    defaultdict,
-    Counter)
+# stdlib
+from collections import Counter, defaultdict
 from copy import copy
 import datetime
 from errno import EEXIST
 import httplib
 from json import (
     dump as json_dump,
-    load as json_load)
+    load as json_load
+)
 from logging import (
-    basicConfig as configure_log_basic,
-    getLogger as get_logger,
     DEBUG as LOGLEVEL_DEBUG,
-    WARN as LOGLEVEL_WARN,
+    ERROR as LOGLEVEL_ERROR,
     INFO as LOGLEVEL_INFO,
-    ERROR as LOGLEVEL_ERROR)
-from os import mkdir, getenv
-from os.path import join, realpath, dirname, basename
+    WARN as LOGLEVEL_WARN,
+    basicConfig as configure_log_basic,
+    getLogger as get_logger
+)
+from os import getenv, mkdir
+from os.path import (
+    basename,
+    dirname,
+    join,
+    realpath
+)
 from re import sub as substitute
 
+# first party
 from simplecasper.util import SimpleHTTPJSON
 
 configure_log_basic()
@@ -74,10 +83,10 @@ def get_casper_credentials():
     # put in a ~/.caspercredsrc and source it in your shellrc
     for var in ('CASPER_USER', 'CASPER_PASS', 'CASPER_HOST'):
         if not getenv(var):
-            print("FATAL: %s is missing from user environment" % (
-                var))
+            print("FATAL: %s is missing from user environment" % (var))
             raise RuntimeError(
-                'Missing Casper API information, set CASPER_USER, CASPER_PASS, CASPER_HOST')
+                'Missing Casper API information, set CASPER_USER, CASPER_PASS, CASPER_HOST'
+            )
     return getenv('CASPER_USER'), getenv('CASPER_PASS'), getenv('CASPER_HOST')
 
 
@@ -163,7 +172,10 @@ class CasperAPI(SimpleHTTPJSON):
         self._run_if_none(self._applications)
         if per_user is True:
             return self._user_tagged_applications
-        return [dict(t) for t in set([tuple(d.items()) for d in self._applications])]
+        return [
+            dict(t)
+            for t in set([tuple(d.items()) for d in self._applications])
+        ]
 
     def get_computer_list(self):
         """placeholder"""
@@ -179,7 +191,9 @@ class CasperAPI(SimpleHTTPJSON):
         self._run_if_none(self._plugins)
         if per_user is True:
             return self._user_tagged_plugins
-        return [dict(t) for t in set([tuple(d.items()) for d in self._plugins])]
+        return [
+            dict(t) for t in set([tuple(d.items()) for d in self._plugins])
+        ]
 
     def get_all_computer_data(self, ip_key=False, exclude_stale=False):
         """Return all data from the /computers endpoint"""
@@ -201,15 +215,19 @@ class CasperAPI(SimpleHTTPJSON):
     def get_extension_attributes(self, count=False):
         self._run_if_none(self._computer_data_list)
         if not count:
-            return [computer['computer']['general'][
-                'simplecasper_parsed_attributes'] for computer in self._computer_data_list]
+            return [
+                computer['computer']['general']
+                ['simplecasper_parsed_attributes']
+                for computer in self._computer_data_list
+            ]
         temp = self._computer_data_list[0]['computer']['general'][
             'simplecasper_parsed_attributes']
         results = {}
         xattr_all = defaultdict(list)
         for key in temp.keys():
             for computer in self._computer_data_list:
-                xattrs = computer['computer']['general']['simplecasper_parsed_attributes']
+                xattrs = computer['computer']['general'][
+                    'simplecasper_parsed_attributes']
                 xattr_all[key].append(xattrs[key])
         for key, value in xattr_all.iteritems():
             results[key] = Counter(value)
@@ -350,21 +368,22 @@ class CasperAPI(SimpleHTTPJSON):
             self._cache_dump(self._computer_id_list, 'computers.json')
         return self._computer_id_list
 
-    def read_cache(self, on):
+    def read_cache(self, on=DEFAULT_READ_CACHE):
         """Retrieve or set read cache setting"""
-        if on is None:
+        if on is True:
+            self._read_cache = on
+            self._update_cache = not on
             return self._read_cache
-        self._read_cache = on
-        if self._read_cache:
-            self._update_cache = False
+        return False
 
-    def update_cache(self, on):
+    def update_cache(self, on=DEFAULT_UPDATE_CACHE):
         """Retrieve or set update cache setting"""
-        if on is None:
+        if on is True:
+            self._update_cache = on
+            self._read_cache = not on
             return self._update_cache
-        self._update_cache = on
-        if self._update_cache:
-            self._read_cache = False
+        return False
+
 
     def skip_stale(self, on, days=STALE_DAYS):
         """
@@ -396,8 +415,9 @@ class CasperAPI(SimpleHTTPJSON):
         """
         self._patches = []
         for patch_id in self.http_get_patch_id_list():
-            obj = self.http_get_json('%s%s%s' % (
-                self._url, self.PATCHES_ID_ENDPOINT, str(patch_id)),
+            obj = self.http_get_json(
+                '%s%s%s' % (self._url, self.PATCHES_ID_ENDPOINT,
+                            str(patch_id)),
                 verify=False,
                 auth=(self._user, self._password),
                 headers=self.HTTP_HEADER_ACCEPT_JSON)
@@ -448,15 +468,20 @@ class CasperAPI(SimpleHTTPJSON):
                     # if self._id_to_patch_report[identifier]:
                     #   pass
                     try:
-                        self._id_to_patch_report[identifier]['missing_patches'].append(patch_record)
+                        self._id_to_patch_report[identifier][
+                            'missing_patches'].append(patch_record)
                     except KeyError:
                         self._id_to_patch_report[identifier] = {}
-                        self._id_to_patch_report[identifier]['person'] = person_name
+                        self._id_to_patch_report[identifier][
+                            'person'] = person_name
                         self._id_to_patch_report[identifier]['email'] = email
-                        self._id_to_patch_report[identifier]['missing_patches'] = []
-                        self._id_to_patch_report[identifier]['missing_patches'].append(patch_record)
+                        self._id_to_patch_report[identifier][
+                            'missing_patches'] = []
+                        self._id_to_patch_report[identifier][
+                            'missing_patches'].append(patch_record)
                         # Some users have two computers, so distinguish between them using SN
-                        self._id_to_patch_report[identifier]['serial_number'] = serial_number
+                        self._id_to_patch_report[identifier][
+                            'serial_number'] = serial_number
                 current_version = None
 
         # Build out a one row per missing patch list
@@ -514,8 +539,7 @@ class CasperAPI(SimpleHTTPJSON):
             attr_type = attr['type']
             attr_value = attr['value']
             if attr_type not in ('String', 'Number', 'Date'):
-                raise RuntimeError('unknown attribute type %s' % (
-                    attr_type))
+                raise RuntimeError('unknown attribute type %s' % (attr_type))
             if attr_type == 'Number':
                 try:
                     attr_value = int(attr_value)
@@ -529,8 +553,11 @@ class CasperAPI(SimpleHTTPJSON):
         # del computer['extension_attributes']
 
         if 'Virtual Machines' in attributes:
-            vm_settings = [attr for attr in attributes['Virtual Machines']['value'].split(
-                '\n') if attr != '']
+            vm_settings = [
+                attr
+                for attr in attributes['Virtual Machines']['value'].split('\n')
+                if attr != ''
+            ]
             vm_count = len(vm_settings)
             if vm_count > 0:
                 vm_app = vm_settings[0]
@@ -541,10 +568,12 @@ class CasperAPI(SimpleHTTPJSON):
                 general['vm_app'] = vm_app
         if 'Chrome Extensions' in attributes:
             chr_ext = attributes['Chrome Extensions']['value']
-        # user_chrome_extensions = [u'{0}'.format(
-        #    ext.strip()) for ext in chr_ext.split(',')]
-        # general['simplecasper_chrome_extensions'] = chrome_extensions
-            self._user_chrome_extensions = [ext.strip() for ext in chr_ext.split(',')]
+            # user_chrome_extensions = [u'{0}'.format(
+            #    ext.strip()) for ext in chr_ext.split(',')]
+            # general['simplecasper_chrome_extensions'] = chrome_extensions
+            self._user_chrome_extensions = [
+                ext.strip() for ext in chr_ext.split(',')
+            ]
         else:
             self._user_chrome_extensions = []
 
@@ -556,10 +585,12 @@ class CasperAPI(SimpleHTTPJSON):
                 # Remove the directory path from the front
                 crashers = basename(crashers)
                 # Strip out everything except the application name
-                crashers = substitute(r'(^.*)_\d{4}-\d{2}-\d{2}-\d{6}_.*$', r'\1',
-                                      crashers)
-                general['simplecasper_crash_data'] = {'user': realname,
-                                                      'app': crashers}
+                crashers = substitute(r'(^.*)_\d{4}-\d{2}-\d{2}-\d{6}_.*$',
+                                      r'\1', crashers)
+                general['simplecasper_crash_data'] = {
+                    'user': realname,
+                    'app': crashers
+                }
             return
 
     def _get_computer_data(self, computer_id_list=None, silent=True):
@@ -575,10 +606,11 @@ class CasperAPI(SimpleHTTPJSON):
 
         An IP address -> user mapping is also created
         """
+
         def _is_stale(last_contact_time):
             try:
-                date = datetime.datetime.strptime(
-                    last_contact_time, self.CASPER_DATE_FORMAT)
+                date = datetime.datetime.strptime(last_contact_time,
+                                                  self.CASPER_DATE_FORMAT)
                 days = datetime.timedelta(days=STALE_DAYS)
                 now = datetime.datetime.now()
                 month_ago = now - days
@@ -665,11 +697,12 @@ class CasperAPI(SimpleHTTPJSON):
             user_services = []
 
             # For development use
-            if self.read_cache(None) is True:
+            if self.read_cache(DEFAULT_READ_CACHE) is True:
                 obj = self._cache_load('%s.json' % (cid))
             else:
-                obj = self.http_get_json('%s%s' % (
-                    self._url, '%s/%s' % (self.COMPUTERS_ID_ENDPOINT, cid)),
+                obj = self.http_get_json(
+                    '%s%s' % (self._url, '%s/%s' %
+                              (self.COMPUTERS_ID_ENDPOINT, cid)),
                     auth=(self._user, self._password),
                     verify=False)
                 if self.update_cache(None) is True:
@@ -722,8 +755,10 @@ class CasperAPI(SimpleHTTPJSON):
             self._user_to_machine[username].append((ip_address, serial_number))
             self._ip_user_map[ip_address]['realname'] = name
             self._ip_user_map[ip_address]['username'] = username
-            self._ip_user_map[ip_address]['last checkin'] = str(last_contact_time)
-            self._ip_user_map[ip_address]['freshness'] = str(datetime.datetime.now())
+            self._ip_user_map[ip_address]['last checkin'] = str(
+                last_contact_time)
+            self._ip_user_map[ip_address]['freshness'] = str(
+                datetime.datetime.now())
             remote_mgmt['management_password_sha256'] = ''
             # mgmt_user = remote_mgmt['management_username']
             hardware = computer['hardware']
@@ -738,20 +773,26 @@ class CasperAPI(SimpleHTTPJSON):
             user_asset['os_name'] = hardware['os_name']
             user_asset['os_version'] = hardware['os_version']
             user_asset['os_build'] = hardware['os_build']
-            user_asset['disk_encryption'] = hardware['disk_encryption_configuration']
+            user_asset['disk_encryption'] = hardware[
+                'disk_encryption_configuration']
             user_asset['managed'] = remote_mgmt['managed']
             general['asset'] = user_asset
 
             software = computer['software']
             casper_software = [pkg for pkg in software['installed_by_casper']]
-            installer_swu_software = [pkg for pkg in software['installed_by_installer_swu']]
-            user_available_software_updates = [upd for upd in software['available_software_updates']]
+            installer_swu_software = [
+                pkg for pkg in software['installed_by_installer_swu']
+            ]
+            user_available_software_updates = [
+                upd for upd in software['available_software_updates']
+            ]
 
             try:
                 # stdout.write('\r' + ' ' * 80)
                 # stdout.write('{}/{} computers processed ...'.format(progress, total_records))
                 # stdout.flush()
-                print('{}/{} computers processed ...'.format(progress, total_records))
+                print('{}/{} computers processed ...'.format(
+                    progress, total_records))
             except UnicodeDecodeError as err:
                 print(err)
                 raise
@@ -778,12 +819,10 @@ class CasperAPI(SimpleHTTPJSON):
             for svc in software['running_services']:
                 # Strip of a GUID at end of service name
                 svc = substitute(
-                    r'(^.*)\.[0-9A-F]{8}(-[0-9A-F]{4}){4}[0-9A-F]{8}$',
-                    r'\1', svc)
+                    r'(^.*)\.[0-9A-F]{8}(-[0-9A-F]{4}){4}[0-9A-F]{8}$', r'\1',
+                    svc)
                 # Strip leading hex from service name
-                svc = substitute(
-                    r'^0x[0-9a-f]{1,16}\.(.*)$',
-                    r'\1', svc)
+                svc = substitute(r'^0x[0-9a-f]{1,16}\.(.*)$', r'\1', svc)
                 self._services.append(svc)
                 user_services.append(svc)
 
@@ -814,55 +853,35 @@ class CasperAPI(SimpleHTTPJSON):
 
             self._ip_simple_name_map[ip_address] = name
             hardware['person'] = name
-            self._available_software_updates.extend(user_available_software_updates)
+            self._available_software_updates.extend(
+                user_available_software_updates)
             self._casper_software.extend(casper_software)
             self._assets.append(user_asset)
 
             tag = _get_user_tag(str(last_contact_time), name, email)
 
-            _append_tagged(
-                self._user_virtual_machines,
-                self._user_tagged_virtual_machines,
-                'virtual machines',
-                tag)
-            _append_tagged(
-                user_asset,
-                self._user_tagged_assets,
-                'asset',
-                tag)
-            _append_tagged(
-                user_applications,
-                self._user_tagged_applications,
-                'applications',
-                tag)
-            _append_tagged(
-                user_plugins,
-                self._user_tagged_plugins,
-                'plugins',
-                tag)
-            _append_tagged(
-                user_available_updates,
-                self._user_tagged_available_updates,
-                'available_updates',
-                tag)
+            _append_tagged(self._user_virtual_machines,
+                           self._user_tagged_virtual_machines,
+                           'virtual machines', tag)
+            _append_tagged(user_asset, self._user_tagged_assets, 'asset', tag)
+            _append_tagged(user_applications, self._user_tagged_applications,
+                           'applications', tag)
+            _append_tagged(user_plugins, self._user_tagged_plugins, 'plugins',
+                           tag)
+            _append_tagged(user_available_updates,
+                           self._user_tagged_available_updates,
+                           'available_updates', tag)
             # What's the difference between available updates and available 'software' updates?
             # No idea... go figure it out yourself
-            _append_tagged(
-                user_available_software_updates,
-                self._user_tagged_available_software_updates,
-                'available_software_updates',
-                tag)
-            _append_tagged(
-                user_services,
-                self._user_tagged_services,
-                'services',
-                tag)
+            _append_tagged(user_available_software_updates,
+                           self._user_tagged_available_software_updates,
+                           'available_software_updates', tag)
+            _append_tagged(user_services, self._user_tagged_services,
+                           'services', tag)
             tag['chrome_version'] = chrome_version
-            _append_tagged(
-                self._user_chrome_extensions,
-                self._user_tagged_chrome_extensions,
-                'chrome extensions',
-                tag)
+            _append_tagged(self._user_chrome_extensions,
+                           self._user_tagged_chrome_extensions,
+                           'chrome extensions', tag)
             del tag['chrome_version']
-        print('\r%d/%d computers processed, complete!' % (
-            total_records, total_records) + ' ' * 80)
+        print('\r%d/%d computers processed, complete!' %
+              (total_records, total_records) + ' ' * 80)

@@ -14,21 +14,30 @@
 Copyright 2017, <copyright@mzpqnxow.com>
 See COPYRIGHT for details
 """
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import (
+    print_function,
+    unicode_literals
+)
 
+# stdlib
 from collections import defaultdict
 from csv import (
     DictWriter as CSVDictWriter,
-    writer as CSVWriter)
-from json import dump as json_dump, load as json_load
-from os.path import join, dirname, realpath
-import warnings
+    writer as CSVWriter
+)
+from json import (
+    dump as json_dump,
+    load as json_load
+)
+from os.path import dirname, join, realpath
 from time import sleep
+import warnings
 
-from requests.exceptions import RequestException
+# third party
 import requests
-
+from requests.exceptions import (
+    RequestException
+)
 
 HTTP_RETRY_COUNT = 50
 HTTP_RETRY_DELAY = 1
@@ -41,7 +50,8 @@ class SimpleHTTPJSON(object):
         Very small class as it is meant to be extended
     """
     HTTP_HEADER_ACCEPT_JSON = {
-        'Accept': 'application/json, text/javascript, */*; q=0.01'}
+        'Accept': 'application/json, text/javascript, */*; q=0.01'
+    }
 
     def __init__(self):
         super(SimpleHTTPJSON, self).__init__()
@@ -83,12 +93,15 @@ class SimpleHTTPJSON(object):
             except RequestException as err:
                 print('HTTP request error')
                 print(err)
-                print('Retrying ({}/{})'.format(retries - live_retries - 1, retries))
+                print('Retrying ({}/{})'.format(retries - live_retries - 1,
+                                                retries))
                 live_retries -= 1
                 sleep(retry_delay)
 
             if success is False:
-                raise RuntimeError('unable to make HTTP request after {} retries'.format(retries))
+                raise RuntimeError(
+                    'unable to make HTTP request after {} retries'.format(
+                        retries))
 
         warnings.filterwarnings("always")
         if response.status_code not in accepted_codes:
@@ -98,8 +111,8 @@ class SimpleHTTPJSON(object):
                     print('FATAL: did you provide auth credentials?')
                 elif response.status_code == 404:
                     print('FATAL: did you specify the correct URL?')
-                raise RuntimeError('bad HTTP status code (%d)' % (
-                    response.status_code))
+                raise RuntimeError(
+                    'bad HTTP status code (%d)' % (response.status_code))
             else:
                 return None
         try:
@@ -139,19 +152,21 @@ class SWVersions(SimpleHTTPJSON):
         """
         chrome_version = defaultdict(dict)
         url = self.CHROME_VERSION_URL % (operating_system, channel)
-        response = self.http_get_json(url,
-                                      verify=False)
+        response = self.http_get_json(url, verify=False)
         response = response.pop()
         response = response['versions'].pop()
         if version_only is True:
             if previous is True:
-                return response['current_version'], response['previous_version']
+                return response['current_version'], response[
+                    'previous_version']
             return response['current_version']
         chrome_version['current']['version'] = response['current_version']
         chrome_version['current']['reldate'] = response['current_reldate']
         if previous is True:
-            chrome_version['previous']['version'] = response['previous_version']
-            chrome_version['previous']['reldate'] = response['previous_reldate']
+            chrome_version['previous']['version'] = response[
+                'previous_version']
+            chrome_version['previous']['reldate'] = response[
+                'previous_reldate']
         return chrome_version
 
     def get_version(self,
@@ -166,10 +181,10 @@ class SWVersions(SimpleHTTPJSON):
         all_versions = {}
         filtered_versions = {}
         if not filter(None, (client_versions, server_versions)):
-            raise RuntimeError('must request either client data, server data, or both')
+            raise RuntimeError(
+                'must request either client data, server data, or both')
 
-        obj = self.http_get_json(self.VERGRABBER_URL,
-                                 verify=False)
+        obj = self.http_get_json(self.VERGRABBER_URL, verify=False)
         if server_versions is True:
             all_versions.update(obj['server'])
         if client_versions is True:
@@ -189,7 +204,12 @@ class SWVersions(SimpleHTTPJSON):
         return filtered_versions
 
 
-def to_file(dest, obj, csv_fields=None, uniq=True, filter_blanks=True, silent=False):
+def to_file(dest,
+            obj,
+            csv_fields=None,
+            uniq=True,
+            filter_blanks=True,
+            silent=False):
     """
     Dump to a file based on extension
 
@@ -224,8 +244,10 @@ def to_file(dest, obj, csv_fields=None, uniq=True, filter_blanks=True, silent=Fa
                 continue
             if csv_fields is not None:
                 if isinstance(row, dict):
-                    row = {k.encode('utf-8'): v.encode(
-                        'utf-8') for k, v in row.iteritems()}
+                    row = {
+                        k.encode('utf-8'): v.encode('utf-8')
+                        for k, v in row.iteritems()
+                    }
                     # new_row[k.encode('utf-8')] = v.encode('utf-8')
                     writer.writerow(row)
                 elif csv_fields is not None:
@@ -236,7 +258,8 @@ def to_file(dest, obj, csv_fields=None, uniq=True, filter_blanks=True, silent=Fa
                 writer.writerow(row)
     elif dest.endswith('.lst'):
         if isinstance(obj, (set, tuple, list)) is False:
-            raise RuntimeError('ERROR: raw/.lst dump object must be set/tuple/list')
+            raise RuntimeError(
+                'ERROR: raw/.lst dump object must be set/tuple/list')
         if uniq is True:
             obj = set(obj)
         for row in obj:
@@ -251,8 +274,7 @@ def to_file(dest, obj, csv_fields=None, uniq=True, filter_blanks=True, silent=Fa
         print('WARN: unknown file extension, dumping as list of strings')
         for row in obj:
             if not isinstance(row, str):
-                raise RuntimeError(
-                    'ERROR: lst files must be list of strings')
+                raise RuntimeError('ERROR: lst files must be list of strings')
             write_stream.write(row.strip() + '\n')
     write_stream.close()
     if silent is False:
