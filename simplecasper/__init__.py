@@ -4,9 +4,16 @@
 Copyright 2017, <copyright@mzpqnxow.com>
 See COPYRIGHT for details
 """
-from simplecasper.util import (SimpleHTTPJSON, to_file, SWVersions)
-
-from simplecasper.api import (CasperAPI, get_casper_credentials)
+# first party
+from simplecasper.api import (
+    CasperAPI,
+    get_casper_credentials
+)
+from simplecasper.util import (
+    SimpleHTTPJSON,
+    SWVersions,
+    to_file
+)
 
 __all__ = [
     'SimpleHTTPJSON', 'to_file', 'SWVersions', 'CasperAPI',
